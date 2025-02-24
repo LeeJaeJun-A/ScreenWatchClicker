@@ -54,23 +54,25 @@ def refresh_screen():
     """스크린을 새로고침하는 동작"""
     pyautogui.hotkey('command', 'r')  # Mac용
     # pyautogui.press('f5')  # Windows용
-    time.sleep(1)
+    time.sleep(random.uniform(0.8, 1.1))
 
 def monitor_and_click():
     """설정된 영역을 모니터링하고 변화 감지 시 클릭"""
     prev_images = [get_screen_image(area) for area in MONITORING_AREAS]
     while MONITORING_AREAS:
-        time.sleep(random.uniform(0.5, 1.5))
+        time.sleep(random.uniform(0.9, 1.5))
         refresh_screen()
         new_images = [get_screen_image(area) for area in MONITORING_AREAS]
-        
+
         for i in reversed(range(len(MONITORING_AREAS))):
             if images_different(prev_images[i], new_images[i]):
                 print(f"변화 감지: 영역 {i+1} -> 클릭 위치 이동")
                 x, y = CLICK_POSITIONS[i]
-                pyautogui.moveTo(x, y, duration=0.1)
+                pyautogui.moveTo(x + random.randint(-5, 5), y + random.randint(-5, 5),
+                                 duration=0.35, tween=pyautogui.easeInOutQuad)
+                time.sleep(0.22)
                 pyautogui.click()
-                
+
                 del MONITORING_AREAS[i]
                 del CLICK_POSITIONS[i]
                 del prev_images[i]
