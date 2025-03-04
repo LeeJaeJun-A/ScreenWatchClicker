@@ -6,6 +6,7 @@ from PIL import ImageGrab, ImageChops
 # 모니터링할 화면상의 영역
 MONITORING_AREAS = []
 CLICK_POSITIONS = []
+REFRESH_POSITION = None
 
 def get_screen_image(area):
     """지정된 화면 영역에서 이미지를 캡처"""
@@ -50,17 +51,29 @@ def record_click_positions():
         CLICK_POSITIONS.append((x, y))
         print(f"기록된 클릭 위치 {i+1}: {x}, {y}")
 
+def record_refresh_position():
+    """새로고침을 위한 클릭 위치 지정"""
+    global REFRESH_POSITION
+    print("새로고침 버튼 위에서 5초 기다립니다...")
+    time.sleep(5)
+    REFRESH_POSITION = pyautogui.position()
+
 def refresh_screen():
-    """스크린을 새로고침하는 동작"""
-    pyautogui.hotkey('command', 'r')  # Mac용
-    # pyautogui.press('f5')  # Windows용
-    time.sleep(random.uniform(0.8, 1.1))
+    """새로고침 버튼 클릭"""
+    if REFRESH_POSITION:
+        x, y = REFRESH_POSITION
+        pyautogui.moveTo(x + random.randint(-2, 2), y + random.randint(-2, 2),
+                    duration=0.1, tween=pyautogui.easeInOutQuad)
+        pyautogui.click()
+        time.sleep(random.uniform(3.8, 7))
 
 def monitor_and_click():
     """설정된 영역을 모니터링하고 변화 감지 시 클릭"""
     prev_images = [get_screen_image(area) for area in MONITORING_AREAS]
+    start_time = time.time()
+    next_break_time = start_time + random.uniform(3600, 7200)
+
     while MONITORING_AREAS:
-        time.sleep(random.uniform(0.9, 1.5))
         refresh_screen()
         new_images = [get_screen_image(area) for area in MONITORING_AREAS]
 
@@ -68,9 +81,8 @@ def monitor_and_click():
             if images_different(prev_images[i], new_images[i]):
                 print(f"변화 감지: 영역 {i+1} -> 클릭 위치 이동")
                 x, y = CLICK_POSITIONS[i]
-                pyautogui.moveTo(x + random.randint(-5, 5), y + random.randint(-5, 5),
-                                 duration=0.35, tween=pyautogui.easeInOutQuad)
-                time.sleep(0.22)
+                pyautogui.moveTo(x + random.randint(-2, 2), y + random.randint(-2, 2),
+                                 duration=0.3, tween=pyautogui.easeInOutQuad)
                 pyautogui.click()
 
                 del MONITORING_AREAS[i]
@@ -78,6 +90,13 @@ def monitor_and_click():
                 del prev_images[i]
                 del new_images[i]
 
+        if time.time() >= next_break_time:
+            rest_time = random.uniform(300, 600)
+            print(f"휴식 시간: {rest_time / 60:.1f}분간 대기 중...")
+            time.sleep(rest_time)
+            next_break_time = time.time() + random.uniform(3600, 7200)
+
 record_monitoring_areas()
 record_click_positions()
+record_refresh_position()
 monitor_and_click()
