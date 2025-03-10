@@ -65,7 +65,7 @@ def refresh_screen():
         pyautogui.moveTo(x + random.randint(-2, 2), y + random.randint(-2, 2),
                     duration=0.1, tween=pyautogui.easeInOutQuad)
         pyautogui.click()
-        time.sleep(random.uniform(3.8, 7))
+        time.sleep(random.uniform(3.8, 6))
 
 def monitor_and_click():
     """설정된 영역을 모니터링하고 변화 감지 시 클릭"""
@@ -82,8 +82,10 @@ def monitor_and_click():
                 print(f"변화 감지: 영역 {i+1} -> 클릭 위치 이동")
                 x, y = CLICK_POSITIONS[i]
                 pyautogui.moveTo(x + random.randint(-2, 2), y + random.randint(-2, 2),
-                                 duration=0.3, tween=pyautogui.easeInOutQuad)
+                                 duration=0.2, tween=pyautogui.easeInOutQuad)
                 pyautogui.click()
+                time.sleep(0.2)
+                pyautogui.press("enter")
 
                 del MONITORING_AREAS[i]
                 del CLICK_POSITIONS[i]
